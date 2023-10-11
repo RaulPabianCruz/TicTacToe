@@ -1,4 +1,5 @@
 const EMPTY_VALUE = ' ';
+const NAME_CHANGE_PROMPT = 'Type in the name for player ';
 
 const playerFactory = function(name, symbol) {
     let playerName = name;
@@ -208,6 +209,20 @@ const gameController = function(firstPlayer, secondPlayer) {
         return activePlayerTurn;
     }
 
+    const changePlayerName = function(playerNum, newName) {
+        if(newName === null) 
+            newName = `Player ${playerNum}`;
+
+        if(playerNum == 1){
+            player1.setName(newName);
+        }
+        else{
+            player2.setName(newName);
+        }
+
+        return newName;
+    }
+
     const resetGame = function() {
         gameBoard.clearBoard();
         activePlayerTurn = player1;
@@ -216,7 +231,13 @@ const gameController = function(firstPlayer, secondPlayer) {
         numOfTurns = 1;
     };
 
-    return {playRound, isValidChoice, isGameOver, getGameOverResult, getActivePlayer, resetGame};
+    return {playRound,
+            isValidChoice,
+            isGameOver,
+            getGameOverResult,
+            getActivePlayer,
+            changePlayerName,
+            resetGame};
 }(PLAYER1, PLAYER2);
 
 
@@ -226,6 +247,7 @@ const displayController = function() {
     let boardContainer = document.querySelector('.gameboard-container');
     let infoScreen = document.querySelector('.info-screen');
     let restartButton = document.querySelector('.restart-bttn');
+    let nameChangeBttns = document.querySelectorAll('.name-bttn');
 
     const _createBoardElement = function(row, col, value) {
         let boardSquare = document.createElement("div");
@@ -240,14 +262,30 @@ const displayController = function() {
 
     const _boardClickHandler = function(event) {
         let boardSquare = event.target;
-        let row = Number(boardSquare.getAttribute("data-row"));
-        let col = Number(boardSquare.getAttribute("data-col"));
+        let row = Number(boardSquare.getAttribute('data-row'));
+        let col = Number(boardSquare.getAttribute('data-col'));
 
         if(gameController.isValidChoice(row, col)){
             gameController.playRound(row, col);
             updateScreen();
         }
     };
+
+    const _changeNameHandler = function(event) {
+        let bttn = event.currentTarget;
+        let playerNum = Number(bttn.getAttribute('data-player'));
+        let newName = prompt(NAME_CHANGE_PROMPT + playerNum, `Player ${playerNum}`);
+        
+        newName = gameController.changePlayerName(playerNum, newName);
+        let nameDisplay = document.querySelector(`.player-${playerNum} > .name-container`);
+        nameDisplay.textContent = "Name: " + newName;
+        _updateTurnInfo();
+    }
+
+    const _updateTurnInfo = function() {
+        let playerName = gameController.getActivePlayer().getName()
+        infoScreen.textContent = "Turn for: " + playerName;
+    }
 
     const _restartHandler = function() {
         gameController.resetGame();
@@ -269,10 +307,13 @@ const displayController = function() {
         if(gameController.isGameOver())
             infoScreen.textContent = gameController.getGameOverResult();
         else
-            infoScreen.textContent = gameController.getActivePlayer().getName();
+            _updateTurnInfo();
     };
 
     boardContainer.addEventListener('click', _boardClickHandler);
+    nameChangeBttns.forEach(function(bttn) {
+        bttn.addEventListener('click', _changeNameHandler);
+    });
     restartButton.addEventListener('click', _restartHandler);
 
     return {updateScreen};

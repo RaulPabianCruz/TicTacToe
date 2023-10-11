@@ -7,16 +7,34 @@
         <link rel="stylesheet" href="style.css">
     </head>
     <body>
+
         <header>
             <h1>Tic-Tac-Toe! :D</h1>
         </header>
 
         <main>
-            <h2 class="info-screen"></h2>
+            <div class="game-info-container">
+                <h2 class="info-screen"></h2>
+            </div>
+            <div class="player-info-container player-1">
+                <h3>Player 1</h3>
+                <h3 class="name-container">Name: Player 1</h3>
+                <h3>Symbol: X</h3>
+                <button data-player="1" class="name-bttn">Change Name</button>
+            </div>
+            <div class="player-info-container player-2">
+                <h3>Player 2</h3>
+                <h3 class="name-container">Name: Player 2</h3>
+                <h3>Symbol: O</h3>
+                <button data-player="2" class="name-bttn">Change Name</button>
+            </div>
             <div class="gameboard-container">
                 
             </div>
-            <button class="restart-bttn">Restart Game</button>
+            <div class="game-options-container">
+                <button class="restart-bttn">Restart Game</button>
+            </div>
         </main>
+
     </body>
 </html>
