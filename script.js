@@ -1,3 +1,5 @@
+const EMPTY_VALUE = ' ';
+
 
 const playerFactory = function(name, symbol) {
     let playerName = name;
@@ -224,6 +226,7 @@ let playah2 = playerFactory("Playah2", "X");
 const displayController = function() {
     let boardContainer = document.querySelector('.gameboard-container');
     let infoScreen = document.querySelector('.info-screen');
+    let restartButton = document.querySelector('.restart-bttn');
     let game = gameController(playah1, playah2);
 
     const _createBoardElement = function(row, column, value) {
@@ -238,6 +241,7 @@ const displayController = function() {
     };
 
     const _addBoardElementValue = function(value) {
+        //i can refactor the whole "empty" return value
         if(value === 'empty')
             return " ";
         else
@@ -263,7 +267,7 @@ const displayController = function() {
         }
     };
 
-    const clickHandler = function(event) {
+    const _boardClickHandler = function(event) {
         let boardSquare = event.target;
         let row = Number(boardSquare.getAttribute("data-row"));
         let column = Number(boardSquare.getAttribute("data-col"));
@@ -273,7 +277,13 @@ const displayController = function() {
         }
     };
 
-    boardContainer.addEventListener("click", clickHandler);
+    const _restartHandler = function() {
+        game.resetGame();
+        updateScreen();
+    }
+
+    boardContainer.addEventListener('click', _boardClickHandler);
+    restartButton.addEventListener('click', _restartHandler);
 
     return {updateScreen};
 }();
