@@ -1,6 +1,5 @@
 const EMPTY_VALUE = ' ';
 
-
 const playerFactory = function(name, symbol) {
     let playerName = name;
     let playerSymbol = symbol;
@@ -24,8 +23,8 @@ const playerFactory = function(name, symbol) {
     return {setName, setSymbol, getName, getSymbol};
 }
 
-const cell = function() {
-    let value = 'empty';
+const cellFactory = function(newValue = EMPTY_VALUE) {
+    let value = newValue;
 
     let setValue = function(newValue) {
         value = newValue;
@@ -38,14 +37,17 @@ const cell = function() {
     return {setValue, getValue};
 }
 
-const gameBoardModule = function() {
+
+//Game Board Module
+//Holds the values of the tictactoe board
+const gameBoard = function() {
     let gameBoardArray = [];
 
     const _initBoard = function() {
         for(let i = 0; i < 3; i++){
             gameBoardArray[i] = [];
             for(let j = 0; j < 3; j++)
-                gameBoardArray[i].push(cell());
+                gameBoardArray[i].push(cellFactory());
         }
     };
 
@@ -59,20 +61,25 @@ const gameBoardModule = function() {
         return gameBoardArray;
     };
 
-    const setCellValue = function(row, column, symbol){
-        if(gameBoardArray[row][column].getValue() === 'empty'){
-            gameBoardArray[row][column].setValue(symbol);
-            return true;
-        }
-        else
-            return false;
+    const setSquareValue = function(row, col, symbol) {
+        gameBoardArray[row][col].setValue(symbol);
+    };
+
+    const getSquareValue = function(row, col) {
+        return gameBoardArray[row][col].getValue();
     };
 
     _initBoard();
 
-    return {clearBoard, getBoardArray, setCellValue};
+    return {clearBoard, getBoardArray, setSquareValue, getSquareValue};
 }();
 
+
+const PLAYER1 = playerFactory('player1', 'X');
+const PLAYER2 = playerFactory('player2', 'O');
+
+//Game Controller Module
+//Controls the logic of the game as its being played
 const gameController = function(firstPlayer, secondPlayer) {
     let player1 = firstPlayer;
     let player2 = secondPlayer;
@@ -113,29 +120,25 @@ const gameController = function(firstPlayer, secondPlayer) {
     };
 
     const _checkHorizontals = function() {
-        let boardArray = gameBoardModule.getBoardArray();
-
-        for(let i = 0; i < boardArray.length; i++){
-            let firstSymbol = boardArray[i][0].getValue();
-            if(firstSymbol === 'empty')
+        for(let i = 0; i < 3; i++){
+            let firstSymbol = gameBoard.getSquareValue(i,0);
+            if(firstSymbol === EMPTY_VALUE)
                 continue;
-            else if(firstSymbol === boardArray[i][1].getValue()
-                && firstSymbol === boardArray[i][2].getValue())
+            else if(firstSymbol === gameBoard.getSquareValue(i,1)
+                && firstSymbol === gameBoard.getSquareValue(i,2))
                 return i;
         }
 
         return -1;
     };
 
-    const _checkVerticals = function(column) {
-        let boardArray = gameBoardModule.getBoardArray();
-
-        for(let i = 0; i < boardArray.length; i++){
-            let firstSymbol = boardArray[0][i].getValue();
-            if(firstSymbol === 'empty')
+    const _checkVerticals = function(col) {
+        for(let i = 0; i < 3; i++){
+            let firstSymbol = gameBoard.getSquareValue(0,i);
+            if(firstSymbol === EMPTY_VALUE)
                 continue;
-            else if(firstSymbol === boardArray[1][i].getValue()
-                && firstSymbol === boardArray[2][i].getValue())
+            else if(firstSymbol === gameBoard.getSquareValue(1,i)
+                && firstSymbol === gameBoard.getSquareValue(2,i))
                 return i;
         }
 
@@ -143,56 +146,52 @@ const gameController = function(firstPlayer, secondPlayer) {
     };
 
     const _checkFirstDiagonal = function() {
-        let boardArray = gameBoardModule.getBoardArray();
-        let firstSymbol = boardArray[0][0].getValue();
-        if(firstSymbol !== 'empty'){
-            if(firstSymbol === boardArray[1][1].getValue()  
-                && firstSymbol === boardArray[2][2].getValue())
+        let firstSymbol = gameBoard.getSquareValue(0,0);
+        if(firstSymbol !== EMPTY_VALUE){
+            if(firstSymbol === gameBoard.getSquareValue(1,1) 
+                && firstSymbol === gameBoard.getSquareValue(2,2))
                 return true;
         }
         return false;
     };
 
     const _checkSecondDiagonal = function() {
-        let boardArray = gameBoardModule.getBoardArray();
-        let firstSymbol = boardArray[2][0].getValue();
-        if(firstSymbol !== 'empty'){
-            if(firstSymbol === boardArray[1][1].getValue()  
-                && firstSymbol === boardArray[0][2].getValue())
+        let firstSymbol = gameBoard.getSquareValue(2,0);
+        if(firstSymbol !== EMPTY_VALUE){
+            if(firstSymbol === gameBoard.getSquareValue(1,1)  
+                && firstSymbol === gameBoard.getSquareValue(0,2))
                 return true;
         }
         return false;
     };
 
-    const _setVictoriousPlayer = function(row, column) {
-        let boardArray = gameBoardModule.getBoardArray();
-        let winningValue = boardArray[row][column].getValue();
+    const _setVictoriousPlayer = function(row, col) {
+        let winningValue = gameBoard.getSquareValue(row,col);
         if(winningValue === player1.getSymbol())
             victoriousPlayer = player1;
-        else if(winningValue === player2.getSymbol())
+        else
             victoriousPlayer = player2;
     };
 
     const _switchTurns = function() {
-        if(activePlayerTurn == player1)
+        if(activePlayerTurn === player1)
             activePlayerTurn = player2;
         else
             activePlayerTurn = player1;
     };
 
-    const playRound = function(row, column) {
-        let activePlayerSymbol = activePlayerTurn.getSymbol();
-        let isValidCell = gameBoardModule.setCellValue(row, column, activePlayerSymbol);        
-        
-        if(!isValidCell)
-            return false;
-        else{
-            _checkWinCondition();
-            _switchTurns();
-            numOfTurns++;
-            return true;
-        }
+    const playRound = function(row, col) {
+        let playerSymbol = activePlayerTurn.getSymbol();
+        gameBoard.setSquareValue(row, col, playerSymbol);
+        _checkWinCondition();
+        _switchTurns();
+        numOfTurns++;
     };
+
+    const isValidChoice = function(row, col) {
+        let squareValue = gameBoard.getSquareValue(row, col);
+        return squareValue === EMPTY_VALUE;
+    }
 
     const isGameOver = function() {
         return isWinConditionMet;
@@ -210,48 +209,55 @@ const gameController = function(firstPlayer, secondPlayer) {
     }
 
     const resetGame = function() {
-        gameBoardModule.clearBoard();
+        gameBoard.clearBoard();
         activePlayerTurn = player1;
         isWinConditionMet = false;
         victoriousPlayer = undefined;
-        numOfTurns = 0;
+        numOfTurns = 1;
     };
 
-    return {playRound, isGameOver, getGameOverResult, getActivePlayer, resetGame};
-};
+    return {playRound, isValidChoice, isGameOver, getGameOverResult, getActivePlayer, resetGame};
+}(PLAYER1, PLAYER2);
 
-let playah1 = playerFactory("Playah 1", "O");
-let playah2 = playerFactory("Playah2", "X");
 
+//Display Controller Module
+//Controls what is displayed to the html
 const displayController = function() {
     let boardContainer = document.querySelector('.gameboard-container');
     let infoScreen = document.querySelector('.info-screen');
     let restartButton = document.querySelector('.restart-bttn');
-    let game = gameController(playah1, playah2);
 
-    const _createBoardElement = function(row, column, value) {
+    const _createBoardElement = function(row, col, value) {
         let boardSquare = document.createElement("div");
 
         boardSquare.classList.add("tictactoe-square");
         boardSquare.setAttribute("data-row", row);
-        boardSquare.setAttribute("data-col", column);
-        boardSquare.textContent = _addBoardElementValue(value);
+        boardSquare.setAttribute("data-col", col);
+        boardSquare.textContent = value;
 
         return boardSquare;
     };
 
-    const _addBoardElementValue = function(value) {
-        //i can refactor the whole "empty" return value
-        if(value === 'empty')
-            return " ";
-        else
-            return value;
+    const _boardClickHandler = function(event) {
+        let boardSquare = event.target;
+        let row = Number(boardSquare.getAttribute("data-row"));
+        let col = Number(boardSquare.getAttribute("data-col"));
+
+        if(gameController.isValidChoice(row, col)){
+            gameController.playRound(row, col);
+            updateScreen();
+        }
+    };
+
+    const _restartHandler = function() {
+        gameController.resetGame();
+        updateScreen();
     };
 
     const updateScreen = function() {
         boardContainer.replaceChildren();
 
-        let boardArray = gameBoardModule.getBoardArray();
+        let boardArray = gameBoard.getBoardArray();
         for(let i = 0; i < boardArray.length; i++){
             for(let j = 0; j < boardArray[i].length; j++){
                 let squareValue = boardArray[i][j].getValue();
@@ -260,27 +266,11 @@ const displayController = function() {
             }
         }
 
-        infoScreen.textContent = game.getActivePlayer().getName();
-
-        if(game.isGameOver()){
-            infoScreen.textContent = game.getGameOverResult();
-        }
+        if(gameController.isGameOver())
+            infoScreen.textContent = gameController.getGameOverResult();
+        else
+            infoScreen.textContent = gameController.getActivePlayer().getName();
     };
-
-    const _boardClickHandler = function(event) {
-        let boardSquare = event.target;
-        let row = Number(boardSquare.getAttribute("data-row"));
-        let column = Number(boardSquare.getAttribute("data-col"));
-
-        if(game.playRound(row, column)){
-            updateScreen();
-        }
-    };
-
-    const _restartHandler = function() {
-        game.resetGame();
-        updateScreen();
-    }
 
     boardContainer.addEventListener('click', _boardClickHandler);
     restartButton.addEventListener('click', _restartHandler);
