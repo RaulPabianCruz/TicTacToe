@@ -76,8 +76,8 @@ const gameBoard = function() {
 }();
 
 
-const PLAYER1 = playerFactory('player1', 'X');
-const PLAYER2 = playerFactory('player2', 'O');
+const PLAYER1 = playerFactory('Player1', 'X');
+const PLAYER2 = playerFactory('Player2', 'O');
 
 //Game Controller Module
 //Controls the logic of the game as its being played
@@ -284,7 +284,7 @@ const displayController = function() {
 
     const _updateTurnInfo = function() {
         let playerName = gameController.getActivePlayer().getName()
-        infoScreen.textContent = "Turn for: " + playerName;
+        infoScreen.textContent = "Turn: " + playerName;
     }
 
     const _restartHandler = function() {

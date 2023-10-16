@@ -4,16 +4,35 @@
 
 body{
     height: 100vh;
+    background-color: bisque;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+}
+
+header{
+    width: 100%;
+    background-image: linear-gradient(135deg, lightcoral, lightblue);
+}
+
+header h1{
+    height: 100%;
+    margin: 0px;
+    background-color: black;
+    color: aliceblue;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
 }
 
 main{
     display: grid;
     grid-template-columns: 1fr 3fr 1fr;
-    grid-template-rows: 1fr 3fr 1fr;
-    column-gap: 10px;
+    grid-template-rows: 70px 3fr 70px;
+    column-gap: 50px;
+    row-gap: 20px;
 }
 
 .game-info-container {
@@ -34,24 +53,49 @@ main{
 .tictactoe-square {
     height: 100%;
     width: 100%;
+    background-color: aliceblue;
+    font-size: 3rem;
     border: 2px solid black;
+    border-radius: 5px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .player-info-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     grid-row: 1/4;
     align-self: center;
     justify-self: center;
+}
+
+.player-header {
+    width: 100%;
+    text-align: center;
 }
 
 .player-1 {
     grid-column: 1;
 }
 
+.player-1.player-header {
+    background-color: lightcoral;
+}
+
 .player-2 {
     grid-column: 3;
+}
+
+.player-2.player-header {
+    background-color: lightblue;
+}
+
+.name-bttn {
+    padding: 10px;
+    border-radius: 15px;
+    border: 2px solid black;
 }
 
 .game-options-container {
@@ -62,7 +106,7 @@ main{
 
 .restart-bttn {
     padding: 10px;
-    margin-top: 15px;
+    margin-top: 35px;
     border-radius: 15px;
     border: 2px solid black;
 }
